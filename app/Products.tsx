@@ -6,6 +6,11 @@ import { ProductsTypes } from "./page";
 import { memo, useContext, useEffect, useState } from "react";
 import { UC } from "./context";
 
+// Utility function to format price to Japanese Yen
+const formatPriceToJPY = (price: number): string => {
+  return `¥${price.toLocaleString('ja-JP')}`;
+};
+
 interface ProductsProps {
   products: ProductsTypes;
   gap?: string;
@@ -48,11 +53,11 @@ const Products = ({ products, gap }: ProductsProps) => {
   return (
     <div
       className={` ${gap} grid justify-center hover:scale-105
-     transition my-5 `}
+     transition my-4 p-2 `}
     >
       <div
         className=" relative cursor-pointer shadow-sm shadow-lightDim overflow-hidden
-            rounded-md h-32 w-32 sm:h-40 sm:w-40 lg:h-56 lg:w-56"
+            rounded-md h-40 w-40 sm:h-48 sm:w-48 lg:h-56 lg:w-56 mx-auto"
       >
         {/* === IMAGE */}
         <Link href={`/product/${products.slug.current}`}>
@@ -63,19 +68,19 @@ const Products = ({ products, gap }: ProductsProps) => {
       </div>
 
       {/* === NAME & PRICE */}
-      <section className=" mx-1 sm:mx-2 flex mt-2 items-center justify-between">
-        <nav className=" text-sm font-normal sm:font-medium">
-          <p> {products.name} </p>
+      <section className=" mx-2 sm:mx-3 flex mt-3 items-center justify-between">
+        <nav className=" text-base font-normal sm:font-medium">
+          <p className="text-sm sm:text-base font-semibold text-gray-800 mb-1"> {products.name} </p>
           <div className=" flex gap-3">
             <span className=" text-sm text-lightGray line-through ">
-              ${products.oldPrice}
+              {formatPriceToJPY(products.oldPrice)}
             </span>
-            <b className=" text-zinc-900 "> ${products.price} </b>
+            <b className=" text-lg text-zinc-900 font-bold"> {formatPriceToJPY(products.price)} </b>
           </div>
         </nav>
 
         {/* // FAV and BAG */}
-        <div className=" flex justify-between gap-5 items-center">
+        <div className=" flex justify-between gap-6 items-center">
           {/* === FAV ICON */}
           {isLoaded && (
             <svg
@@ -83,19 +88,19 @@ const Products = ({ products, gap }: ProductsProps) => {
                 saveToLocalS(products);
                 setUpdate((p) => !p);
               }}
-              className={`h-6 stroke-lightGray hover:stroke-love self-start 
-          sm:hover:fill-love transition-colors cursor-pointer
-          duration-1000 text-lightDim1 z-10 ${
+              className={`h-7 w-7 self-start transition-colors cursor-pointer
+          duration-300 z-10 p-1 rounded-full border-2 ${
             window.localStorage.trxfav &&
             JSON.parse(localStorage.trxfav).filter(
               (each: ProductsTypes) => each._id == products._id
-            ).length >= 1 &&
-            "fill-love stroke-love"
+            ).length >= 1
+              ? "fill-love stroke-love border-love bg-white"
+              : "stroke-gray-400 hover:stroke-love border-gray-300 hover:border-love bg-white hover:bg-red-50"
           }`}
               viewBox="0 0 24 24"
               fill="none"
-              stroke="none"
-              strokeWidth={1.5}
+              stroke="currentColor"
+              strokeWidth={2}
             >
               <title> Add To Favorite</title>
               <path
@@ -112,7 +117,7 @@ const Products = ({ products, gap }: ProductsProps) => {
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
-            className={`w-6 h-6 cursor-pointer hidden sm:block text-lightGray
+            className={`w-7 h-7 cursor-pointer hidden sm:block text-lightGray
             hover:stroke-dim stroke-[1.5] ${
               cartItems.filter((item: any) => item._id == products._id)
                 .length >= 1 && "text-dim stroke-[2]"

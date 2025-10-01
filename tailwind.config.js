@@ -14,6 +14,15 @@ module.exports = {
         love: "#dc2626",
         lightLove: "#ffcccc",
       },
+      animation: {
+        'marquee-reverse': 'marquee-reverse 20s linear infinite',
+      },
+      keyframes: {
+        'marquee-reverse': {
+          '0%': { transform: 'translateX(0%)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
+      },
     },
   },
   plugins: [require('tailwind-styled-scrollbar')],
