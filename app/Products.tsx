@@ -5,11 +5,7 @@ import { useNextSanityImage } from "next-sanity-image";
 import { ProductsTypes } from "./page";
 import { memo, useContext, useEffect, useState } from "react";
 import { UC } from "./context";
-
-// Utility function to format price to Japanese Yen
-const formatPriceToJPY = (price: number): string => {
-  return `¥${price.toLocaleString('ja-JP')}`;
-};
+import { formatPriceToJPY } from "../lib/currencyUtils";
 
 interface ProductsProps {
   products: ProductsTypes;
@@ -52,8 +48,8 @@ const Products = ({ products, gap }: ProductsProps) => {
 
   return (
     <div
-      className={` ${gap} grid justify-center hover:scale-105
-     transition my-4 p-2 `}
+      className={` ${gap} flex flex-col justify-center hover:scale-105
+     transition my-4 p-3 bg-white rounded-lg shadow-sm hover:shadow-md border border-gray-100 `}
     >
       <div
         className=" relative cursor-pointer shadow-sm shadow-lightDim overflow-hidden
@@ -68,68 +64,91 @@ const Products = ({ products, gap }: ProductsProps) => {
       </div>
 
       {/* === NAME & PRICE */}
-      <section className=" mx-2 sm:mx-3 flex mt-3 items-center justify-between">
-        <nav className=" text-base font-normal sm:font-medium">
-          <p className="text-sm sm:text-base font-semibold text-gray-800 mb-1"> {products.name} </p>
-          <div className=" flex gap-3">
-            <span className=" text-sm text-lightGray line-through ">
-              {formatPriceToJPY(products.oldPrice)}
-            </span>
-            <b className=" text-lg text-zinc-900 font-bold"> {formatPriceToJPY(products.price)} </b>
+      <section className=" mx-2 sm:mx-3 mt-3">
+        {/* Product Name */}
+        <div className="mb-2">
+          <p className="text-sm sm:text-base font-semibold text-gray-800 line-clamp-2"> {products.name} </p>
+        </div>
+        
+        {/* Price Section - Improved Layout */}
+        <div className="mb-3">
+          <div className="flex flex-col gap-1">
+            {products.oldPrice && products.oldPrice > 0 && (
+              <span className="text-xs text-lightGray line-through">
+                {formatPriceToJPY(products.oldPrice)}
+              </span>
+            )}
+            <div className="flex items-center justify-between">
+              <b className="text-sm sm:text-base text-zinc-900 font-bold"> 
+                {formatPriceToJPY(products.price)} 
+              </b>
+              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                JPY
+              </span>
+            </div>
           </div>
-        </nav>
+        </div>
 
-        {/* // FAV and BAG */}
-        <div className=" flex justify-between gap-6 items-center">
+        {/* Action Buttons - Better Positioning */}
+        <div className="flex justify-end gap-4 items-center">
           {/* === FAV ICON */}
           {isLoaded && (
-            <svg
+            <button
               onClick={() => {
                 saveToLocalS(products);
                 setUpdate((p) => !p);
               }}
-              className={`h-7 w-7 self-start transition-colors cursor-pointer
-          duration-300 z-10 p-1 rounded-full border-2 ${
-            window.localStorage.trxfav &&
-            JSON.parse(localStorage.trxfav).filter(
-              (each: ProductsTypes) => each._id == products._id
-            ).length >= 1
-              ? "fill-love stroke-love border-love bg-white"
-              : "stroke-gray-400 hover:stroke-love border-gray-300 hover:border-love bg-white hover:bg-red-50"
-          }`}
+              className={`p-2 rounded-full border-2 transition-all duration-300 hover:scale-110 ${
+                window.localStorage.trxfav &&
+                JSON.parse(localStorage.trxfav).filter(
+                  (each: ProductsTypes) => each._id == products._id
+                ).length >= 1
+                  ? "fill-love stroke-love border-love bg-white shadow-md"
+                  : "stroke-gray-400 hover:stroke-love border-gray-300 hover:border-love bg-white hover:bg-red-50 hover:shadow-md"
+              }`}
+              title="Add to Favorites"
+            >
+              <svg
+                className="h-5 w-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5
+            4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                />
+              </svg>
+            </button>
+          )}
+
+          {/* === CART ICON */}
+          <button
+            className={`p-2 rounded-full border-2 transition-all duration-300 hover:scale-110 ${
+              cartItems.filter((item: any) => item._id == products._id).length >= 1
+                ? "text-dim stroke-[2] border-dim bg-dim/10"
+                : "text-lightGray hover:stroke-dim border-gray-300 hover:border-dim bg-white hover:bg-dim/5"
+            }`}
+            onClick={() => onAdd(products, 1)}
+            title="Add to Cart"
+          >
+            <svg
+              className="h-5 w-5"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth={2}
+              strokeWidth={1.5}
             >
-              <title> Add To Favorite</title>
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5
-          4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
               />
             </svg>
-          )}
-
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            className={`w-7 h-7 cursor-pointer hidden sm:block text-lightGray
-            hover:stroke-dim stroke-[1.5] ${
-              cartItems.filter((item: any) => item._id == products._id)
-                .length >= 1 && "text-dim stroke-[2]"
-            }`}
-            onClick={() => onAdd(products, 1)}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
-            />
-          </svg>
+          </button>
         </div>
       </section>
     </div>
