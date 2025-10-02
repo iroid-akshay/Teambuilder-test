@@ -61,7 +61,7 @@ const Home = ({ products, bannerData }: HomeProps) => {
 
       {/* === SHOW PRODUCTS  */}
       <section className="px-4 sm:px-6 lg:px-20">
-        <div className="grid grid-cols-3 gap-6 sm:gap-8 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-6xl mx-auto">
           {/* === MAP PRODUCTS  */}
           {sortedProducts?.map((products: ProductsTypes) => {
             return <Products key={products._id} products={products} />;

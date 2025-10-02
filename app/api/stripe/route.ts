@@ -33,12 +33,12 @@ export async function POST(req: Request) {
 
         return {
           price_data: {
-            currency: "myr",
+            currency: "jpy",
             product_data: {
               name: item.name,
               images: [newImage],
             },
-            unit_amount: item.price * 100,
+            unit_amount: Math.round(item.price * 147.14), // Convert USD to JPY
           },
           adjustable_quantity: {
             enabled: true,
